@@ -19,3 +19,11 @@
       win_iis_website:
         name: "Default Web Site"
         state: absent
+
+- hosts: db
+  tasks:
+    - name: Install SQL Server
+      win_chocolatey:
+        name: sql-server-express
+        version: '14.1801.3958.1'
+        state: present
