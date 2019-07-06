@@ -7,7 +7,8 @@
 
     - name: Install IIS Web-Server with sub features and management tools
       win_feature:
-        name: Web-Server,Web-Common-Http,Web-Static-Content,Web-Health,Web-Performance,Web-Security,Web-App-Dev,Web-Asp$        state: present
+        name: Web-Server,Web-Common-Http,Web-Static-Content,Web-Health,Web-Performance,Web-Security,Web-App-Dev,Web-Asp-Net45,Web-Mgmt-Tools,Web-Mgmt-Console
+        state: present
       register: win_feature
 
     - name: Reboot if installing Web-Server feature requires it
