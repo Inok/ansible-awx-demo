@@ -1,31 +1,26 @@
-- name: Calculate Settings
-  set_fact:
-    download_url: "https://gist.github.com/Inok/ef4d7b002fd4adefca96d6cd648cc376/archive/b606946ae6e2d6b118cbb63dd28cbbac60f4b7dd.zip"
+- hosts: localhost
+  tasks:
+  - name: Calculate Settings
+    set_fact:
+      download_url: "https://gist.github.com/Inok/ef4d7b002fd4adefca96d6cd648cc376/archive/f5da8154b7c05bb5ecdfb33512d6147739227c66.zip"
 
-- name: Create temp directory for artifacts
-  tempfile:
-    state: directory
-    suffix: packages
-  register: temp_packages
+  - name: Create temp directory for artifacts
+    tempfile:
+      state: directory
+      suffix: packages
+    register: temp_packages
 
-- name: Download the Artifact
-  get_url:
-    url: "{{ download_url }}"
-    dest: "{{ temp_packages.path }}/package.zip"
+  - name: Download the Artifact
+    get_url:
+      url: "{{ download_url }}"
+      dest: "{{ temp_packages.path }}/package.zip"
 
-- name: Unarchive the Artifact
-  unarchive:
-    src: "{{ temp_packages.path }}/package.zip"
-    dest: "{{ temp_packages.path }}/package_data"
-    remote_src: yes
+  - name: Unarchive the Artifact
+    unarchive:
+      src: "{{ temp_packages.path }}/package.zip"
+      dest: "{{ temp_packages.path }}/package_data"
+      remote_src: yes
 
-- name: Include a play after another play
-  include_playbook: "{{ temp_packages.path }}/package_data/ef4d7b002fd4adefca96d6cd648cc376-b606946ae6e2d6b118cbb63dd28cbbac60f4b7dd/deploy.yml"
-
-- name: Remove temp directory
-  file:
-    state: absent
-    path: "{{ temp_packages.path }}/"
-
-#- hosts: web
-#  tasks:
+- hosts: web
+  tasks:
+  - include_tasks: "{{ temp_packages.path }}/package_data/ef4d7b002fd4adefca96d6cd648cc376-f5da8154b7c05bb5ecdfb33512d6147739227c66/deploy-web.yml"
