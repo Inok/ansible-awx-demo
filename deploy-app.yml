@@ -11,6 +11,7 @@
       download_url: "https://github.com/Inok/ansible-awx-demo/archive/master.zip"
       artifact_archive_path: "{{ temp_packages.path }}/package.zip"
       artifact_data_path: "{{ temp_packages.path }}/package_data"
+      artifact_path: "{{ temp_packages.path }}/package_data/ansible-awx-demo-master/artifact/"
 
   - name: Download the Artifact
     get_url:
@@ -29,7 +30,18 @@
       dest: "{{ artifact_data_path }}"
       remote_src: yes
 
+- hosts: all
+  tasks:
+  - name: Setup artifact path
+    set_fact:
+      artifact_path: "{{ hostvars['localhost']['artifact_path'] }}"
+
 - hosts: web
   tasks:
-  - name: Include web tasks from artifact
-    include_tasks: "{{ hostvars['localhost']['artifact_data_path'] }}/ansible-awx-demo-master/artifact/deploy-web.yml"
+  - name: Include tasks from artifact
+    include_tasks: "{{ artifact_path }}/deploy-web.yml"
+
+- hosts: db
+  tasks:
+  - name: Include tasks from artifact
+    include_tasks: "{{ artifact_path }}/deploy-db.yml"
