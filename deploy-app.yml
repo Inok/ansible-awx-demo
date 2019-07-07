@@ -1,32 +1,35 @@
 - hosts: localhost
   tasks:
-  - name: Calculate Settings
-    set_fact:
-      download_url: "https://gist.github.com/Inok/ef4d7b002fd4adefca96d6cd648cc376/archive/f5da8154b7c05bb5ecdfb33512d6147739227c66.zip"
-
   - name: Create temp directory for artifacts
     tempfile:
       state: directory
       suffix: packages
     register: temp_packages
 
+  - name: Calculate Settings
+    set_fact:
+      download_url: "https://github.com/Inok/ansible-awx-demo/archive/master.zip"
+      artifact_archive_path: "{{ temp_packages.path }}/package.zip"
+      artifact_data_path: "{{ temp_packages.path }}/package_data"
+
   - name: Download the Artifact
     get_url:
       url: "{{ download_url }}"
-      dest: "{{ temp_packages.path }}/package.zip"
+      dest: "{{ artifact_archive_path }}"
 
   - name: Create a directory if it does not exist
     file:
-      path: "{{ temp_packages.path }}/package_data"
+      path: "{{ artifact_data_path }}"
       state: directory
       mode: '0755'
 
   - name: Unarchive the Artifact
     unarchive:
-      src: "{{ temp_packages.path }}/package.zip"
-      dest: "{{ temp_packages.path }}/package_data"
+      src: "{{ artifact_archive_path }}"
+      dest: "{{ artifact_data_path }}"
       remote_src: yes
 
 - hosts: web
   tasks:
-  - include_tasks: "{{ temp_packages.path }}/package_data/ef4d7b002fd4adefca96d6cd648cc376-f5da8154b7c05bb5ecdfb33512d6147739227c66/deploy-web.yml"
+  - name: Include web tasks from artifact
+    include_tasks: "{{ hostvars['localhost']['artifact_data_path'] }}/ansible-awx-demo-master/artifact/deploy-web.yml"
